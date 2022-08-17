@@ -5,8 +5,15 @@ from rest_framework import status
 from .serializers import SuperSerializer
 from .models import Super
 
+@api_view(['GET'])
+def supers_list(request):
+    supers = Super.objects.all()
+    serializer = SuperSerializer(supers, many=True)
+    return Response(serializer.data)
+
+
 @api_view(['GET', 'PUT', 'DELETE'])
-def supers_list(request, pk):
+def super_detail(request, pk):
     super = get_object_or_404(Super, pk=pk)
     if request.method == 'GET':
         serializer = SuperSerializer(super);

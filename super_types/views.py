@@ -5,8 +5,15 @@ from rest_framework import status
 from .serializers import SuperTypeSerializer
 from .models import SuperType
 
+@api_view(['GET'])
+def super_types_list(request):
+    super_types = SuperType.objects.all()
+    serializer = SuperTypeSerializer(super_types, many=True)
+    return Response(serializer.data)
+
+
 @api_view(['GET', 'PUT', 'DELETE'])
-def super_types_list(request, pk):
+def super_type_detail(request, pk):
     super_type = get_object_or_404(SuperType, pk=pk)
     if request.method == 'GET':
         serializer = SuperTypeSerializer(super_type);
