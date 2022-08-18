@@ -2,38 +2,33 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from supers.models import Super
+from ..supers.serializers import SuperSerializer
 from .serializers import SuperTypeSerializer
 from .models import SuperType
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def super_types_list(request):
-    
-    if request.method == 'GET':
-        super_types = SuperType.objects.all()
-        serializer = SuperTypeSerializer(super_types, many=True)
-        return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = SuperTypeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    type_param = request.query_params.get('type')
+    supers = Super.objects.all()
+    custom_response = {}
+    super_types = SuperType.objects.all()
 
+    if type_param:
+        supers = supers.filter(super_type__type=type_param)
+        serializer = SuperSerializer(supers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def super_type_detail(request, pk):
-    super_type = get_object_or_404(SuperType, pk=pk)
-    if request.method == 'GET':
-        serializer = SuperTypeSerializer(super_type);
-        return Response(serializer.data)
-    
-    elif request.method == 'PUT':
-        serializer = SuperTypeSerializer(super_type, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-    elif request.method == 'DELETE':
-        super_type.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    else:
+        for super_type in super_types:
+            heroes = Super.objects.filter(super_type_id=1)
+            hero_serializer = SuperSerializer(heroes, many=True)
+            villains = Super.objects.filter(super_type_id=2)
+            villain_serializer = SuperSerializer(villains, many=True)
+            custom_response = {
+                "heroes": hero_serializer.data,
+                "villains": villain_serializer.data
+            }
+        return Response(custom_response, status=status.HTTP_200_OK)
 
