@@ -7,18 +7,14 @@ from .models import Super
 
 
 
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT', 'DELETE'])
 def super_detail(request, pk):
+
     super = get_object_or_404(Super, pk=pk)
+
     if request.method == 'GET':
         serializer = SuperSerializer(super);
         return Response(serializer.data)
-
-    elif request.method == 'POST':
-        serializer = SuperSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     elif request.method == 'PUT':
         serializer = SuperSerializer(super, data=request.data)
@@ -31,8 +27,15 @@ def super_detail(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def supers_list(request):
+
+
+    if request.method == 'POST':
+        serializer = SuperSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     type_param = request.query_params.get('type')
     supers = Super.objects.all()
