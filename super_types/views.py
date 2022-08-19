@@ -30,5 +30,5 @@ def super_types_list(request):
                 "heroes": hero_serializer.data,
                 "villains": villain_serializer.data
             }
-        return Response(custom_response, status=status.HTTP_200_OK)
+        return Response(custom_response)
 
